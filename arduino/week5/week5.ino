@@ -1,9 +1,11 @@
 #define TRIG A4
 #define ECHO A5
+#define BUZZER 13
 
 void setup() {
   pinMode(TRIG, OUTPUT);
   pinMode(ECHO, INPUT);
+  pinMode(BUZZER, OUTPUT);
 
   Serial.begin(9600);
 }
@@ -18,6 +20,12 @@ void loop() {
   Serial.print("Distance: ");
   Serial.print(distance);
   Serial.println("cm");
+
+  if (distance < 20) {
+    tone(BUZZER, 262);
+  } else {
+    noTone(BUZZER);
+  }
 
   delay(100);
 }
