@@ -78,7 +78,7 @@ void loop() {
 
   int value = analogRead(VARIABLE_R);
   int num = value / 256;
-
+  // 서보모터 작동 이상
   switch (num) {
     case 0:
       myServo.write(20);
