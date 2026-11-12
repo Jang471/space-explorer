@@ -13,17 +13,10 @@ int buzzerState = 0;
 int toneValue = 0;
 
 void setup() {
-  pinMode(BUTTON, INPUT);
-  pinMode(VARIABLE_R, INPUT);
-  pinMode(BUZZER, OUTPUT);
-
-  for (int i = 0; i < 4; i++) {
-    pinMode(LED[i], OUTPUT);
-  }
+  myServo.attach(SERVO);
+  pinMode(LED, OUTPUT);
 
   Serial.begin(9600);
-
-  Serial.println("set,0 / reset,0 / check,0 / toggle,0");
 }
 
 void loop() {
@@ -76,65 +69,12 @@ void loop() {
   }
 
   if (Serial.available()) {
-    String command = Serial.readStringUntil(',');
-
-    int bitNum = Serial.parseInt();
+    int servoValue = Serial.parseInt();
+    int ledValue = Serial.parseInt();
 
     Serial.readStringUntil('\n');
 
-    int checkBit = 1 << bitNum;
-
-    if (command.equals("set")) {
-      ledState = ledState | checkBit;
-    } else if (command.equals("reset")) {
-      ledState = ledState & ~checkBit;
-    } else if (command.equals("check")) {
-      if (ledState & checkBit) {
-        Serial.println("BIT ON");
-      } else {
-        Serial.println("BIT OFF");
-      }
-    } else if (command.equals("toggle")) {
-      ledState = ledState ^ checkBit;
-    }
-
-    Serial.print("LED STATE: ");
-    Serial.println(ledState, BIN);
+    myServo.write(servoValue);
+    analogWrite(LED, ledValue);
   }
-
-  for (int i = 0; i < 4; i++) {
-    int ledBit = 1 << i;
-
-    if (ledState & ledBit) {
-      digitalWrite(LED[i], 1);
-    } else {
-      digitalWrite(LED[i], 0);
-    }
-  }
-
-  if (buttonValue == 0) {
-    blink(200);
-  }
-}
-
-void blink(int time) {
-  for (int i = 0; i < 4; i++) {
-    digitalWrite(LED[i], 1);
-  }
-
-  delay(time);
-
-  for (int i = 0; i < 4; i++) {
-    digitalWrite(LED[i], 0);
-  }
-
-  delay(time);
-}
-
-int sensorPercent(int pin) {
-  int val = analogRead(pin);
-
-  int percent = map(val, 0, 1023, 0, 100);
-
-  return percent;
 }
