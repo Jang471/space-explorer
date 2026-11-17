@@ -1,80 +1,36 @@
 #define BUTTON 2
 #define VARIABLE_R A1
-#define BUZZER 13
+#define LIGHT A3
 
-const int LED[] = {6, 7, 8, 12};
-
-int ledState = 0;
-
-unsigned long currentTime;
-unsigned long previousTime = 0;
-
-int buzzerState = 0;
-int toneValue = 0;
+int prev_value = 0;
 
 void setup() {
-  myServo.attach(SERVO);
-  pinMode(LED, OUTPUT);
+  pinMode(BUTTON, INPUT);
+  pinMode(VARIABLE_R, INPUT);
+  pinMode(LIGHT, INPUT);
 
   Serial.begin(9600);
 }
 
 void loop() {
-  int buttonValue = digitalRead(BUTTON);
+  int value1 = analogRead(VARIABLE_R);
+  int value2 = analogRead(LIGHT);
 
-  int percent = sensorPercent(VARIABLE_R);
+  Serial.print(value1);
+  Serial.print(",");
 
-  int num = map(percent, 0, 100, 0, 4);
+  Serial.print(value2);
+  Serial.print(",");
 
-  switch (num) {
-    case 0:
-      toneValue = 0;
-      break;
+  int value3 = digitalRead(BUTTON);
 
-    case 1:
-      toneValue = 262;
-      break;
-
-    case 2:
-      toneValue = 330;
-      break;
-
-    case 3:
-      toneValue = 392;
-      break;
-
-    case 4:
-      toneValue = 523;
-      break;
-  }
-
-  currentTime = millis();
-
-  if (currentTime - previousTime >= 1000) {
-    previousTime = currentTime;
-
-    if (buzzerState == 0) {
-      buzzerState = 1;
-    } else {
-      buzzerState = 0;
-    }
-  }
-
-  if (toneValue == 0) {
-    noTone(BUZZER);
-  } else if (buzzerState == 1) {
-    tone(BUZZER, toneValue);
+  if (value3 == 0 && prev_value == 1) {
+    Serial.println("pressed");
   } else {
-    noTone(BUZZER);
+    Serial.println("unpressed");
   }
 
-  if (Serial.available()) {
-    int servoValue = Serial.parseInt();
-    int ledValue = Serial.parseInt();
+  prev_value = value3;
 
-    Serial.readStringUntil('\n');
-
-    myServo.write(servoValue);
-    analogWrite(LED, ledValue);
-  }
+  delay(30);
 }
